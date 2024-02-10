@@ -1,0 +1,29 @@
+version: '3'
+services:
+  apache:
+    image: bytelife/logstack-apache-proxy-kibana:2.4.58.1  #httpd:2.4
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./httpd-ssl.conf:/usr/local/apache2/conf/extra/httpd-ssl.conf
+      - ./certs:/usr/local/apache2/certs
+    depends_on:
+      - keycloak
+      - kibana
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0.6 # jboss/keycloak
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HTTP_ENABLED: true
+      KC_PROXY: edge
+      KC_HOSTNAME: ls-auth.kolde3
+    ports:
+      - 8080:8080
+      - 9990:9990
+  kibana:
+    image: nginx
+    ports:
+      - 5602:80
